@@ -1,0 +1,35 @@
+[
+  {
+    "nickname": "test",
+    "places": [
+      "test 1"
+    ]
+  },
+  {
+    "nickname": "test 2",
+    "places": [
+      "test1",
+      "test2"
+    ]
+  },
+  {
+    "nickname": "home",
+    "places": [
+      "door",
+      "shoe stack",
+      "sink",
+      "toliet",
+      "shower"
+    ]
+  },
+  {
+    "nickname": "home",
+    "places": [
+      "bathroom",
+      "laundry",
+      "kitchen",
+      "office",
+      "window"
+    ]
+  }
+]
