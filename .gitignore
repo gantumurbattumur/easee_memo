@@ -1,9 +1,9 @@
 backend/service-account-key.json
 backend/memorypalace.db
+backend/__pycache__
 .DS_Store
 node_modules/
 .env
 .vscode/
 __pycache__/
 *.pyc
-memorypalace.db
