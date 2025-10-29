@@ -1,5 +1,7 @@
 fastapi
 uvicorn
-google-genai
+sqlalchemy
+pydantic
+python-dotenv
+requests
 google-generativeai
-python-dotenv   
