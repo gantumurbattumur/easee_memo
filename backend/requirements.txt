@@ -3,4 +3,3 @@ uvicorn
 google-genai
 google-generativeai
 python-dotenv   
-axios

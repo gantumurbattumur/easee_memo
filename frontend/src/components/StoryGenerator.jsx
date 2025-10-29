@@ -9,7 +9,9 @@ export default function StoryGenerator({ onGenerate }) {
   useEffect(() => {
     const fetchPalaces = async () => {
       try {
-        const res = await fetch("http://localhost:8000/palace/list");
+        const userId = localStorage.getItem("user_id") || "guest";
+        const res = await fetch(`http://localhost:8000/palace/list?user_id=${userId}`);
+        if (!res.ok) throw new Error("Failed to fetch palaces");
         const data = await res.json();
         setPalaces(data || []);
       } catch (error) {
@@ -65,7 +67,7 @@ export default function StoryGenerator({ onGenerate }) {
             </svg>
           </div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Generate Your Memory Story
+            Generate Your Story
           </h2>
           <p className="text-slate-600 text-sm">Transform information into unforgettable narratives</p>
         </div>

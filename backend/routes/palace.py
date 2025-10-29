@@ -1,19 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
 from database import get_db
 from models.memory_palace import MemoryPalace
 from schemas.palace_schema import MemoryPalace as PalaceSchema
 import json
+from typing import Optional
 
 router = APIRouter(prefix="/palace", tags=["Palace"])
 
-# Get all palaces
+# 🟢 List palaces for a specific user
 @router.get("/list", response_model=list[PalaceSchema])
-def list_palaces(db: Session = Depends(get_db)):
-    palaces = db.query(MemoryPalace).all()
+def list_palaces(user_id: Optional[str] = Query(None), db: Session = Depends(get_db)):
+    """Fetch all palaces (optionally filtered by user)."""
+    query = db.query(MemoryPalace)
+    if user_id:
+        query = query.filter(MemoryPalace.user_id == user_id)
+
+    palaces = query.all()
     result = []
     for p in palaces:
-        # Convert stringified spots to Python list (if needed)
         if isinstance(p.spots, str):
             try:
                 p.spots = json.loads(p.spots)
@@ -22,20 +27,20 @@ def list_palaces(db: Session = Depends(get_db)):
         result.append(p)
     return result
 
-
-# Upload a new palace
+# 🟢 Upload new palace
 @router.post("/upload", response_model=PalaceSchema)
-async def upload_memory_palace(request: Request, db: Session = Depends(get_db)):
+async def upload_memory_palace(
+    request: Request,
+    user_id: str = Query(...),
+    db: Session = Depends(get_db),
+):
     data = await request.json()
-    print("📥 Received data:", data)
-
     nickname = data.get("nickname")
     spots = data.get("spots") or data.get("places", [])
 
     if not nickname:
         raise HTTPException(status_code=400, detail="Missing nickname")
 
-    # Convert Python list to JSON string if necessary
     if isinstance(spots, list):
         spots_json = json.dumps(spots)
     else:
@@ -44,15 +49,14 @@ async def upload_memory_palace(request: Request, db: Session = Depends(get_db)):
     new_palace = MemoryPalace(
         name=nickname,
         description=f"Palace created by {nickname}",
-        spots=spots_json
+        spots=spots_json,
+        user_id=user_id,  # ✅ link to this user's anonymous ID
     )
 
     db.add(new_palace)
     db.commit()
     db.refresh(new_palace)
-    print("💾 Palace saved:", new_palace.name)
 
-    # Return parsed spots
     try:
         new_palace.spots = json.loads(new_palace.spots)
     except Exception:
@@ -60,13 +64,21 @@ async def upload_memory_palace(request: Request, db: Session = Depends(get_db)):
 
     return new_palace
 
-# Update existing palace
-@router.put("/update/{palace_id}", response_model=PalaceSchema)
-async def update_memory_palace(palace_id: int, request: Request, db: Session = Depends(get_db)):
-    data = await request.json()
-    print(f"✏️ Updating palace {palace_id} with data:", data)
 
-    palace = db.query(MemoryPalace).filter(MemoryPalace.id == palace_id).first()
+# ✏️ Update existing palace
+@router.put("/update/{palace_id}", response_model=PalaceSchema)
+async def update_memory_palace(
+    palace_id: int,
+    request: Request,
+    user_id: str = Query(...),
+    db: Session = Depends(get_db),
+):
+    data = await request.json()
+    palace = (
+        db.query(MemoryPalace)
+        .filter(MemoryPalace.id == palace_id, MemoryPalace.user_id == user_id)
+        .first()
+    )
     if not palace:
         raise HTTPException(status_code=404, detail="Palace not found")
 
@@ -75,15 +87,11 @@ async def update_memory_palace(palace_id: int, request: Request, db: Session = D
 
     palace.name = nickname
     if spots is not None:
-        if isinstance(spots, list):
-            palace.spots = json.dumps(spots)
-        else:
-            palace.spots = spots
+        palace.spots = json.dumps(spots) if isinstance(spots, list) else spots
 
     db.commit()
     db.refresh(palace)
 
-    # Return parsed version
     try:
         palace.spots = json.loads(palace.spots)
     except Exception:
@@ -92,10 +100,16 @@ async def update_memory_palace(palace_id: int, request: Request, db: Session = D
     return palace
 
 
-# Delete a palace
+# ❌ Delete a palace
 @router.delete("/delete/{palace_id}")
-def delete_memory_palace(palace_id: int, db: Session = Depends(get_db)):
-    palace = db.query(MemoryPalace).filter(MemoryPalace.id == palace_id).first()
+def delete_memory_palace(
+    palace_id: int, user_id: str = Query(...), db: Session = Depends(get_db)
+):
+    palace = (
+        db.query(MemoryPalace)
+        .filter(MemoryPalace.id == palace_id, MemoryPalace.user_id == user_id)
+        .first()
+    )
     if not palace:
         raise HTTPException(status_code=404, detail="Palace not found")
 

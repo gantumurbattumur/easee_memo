@@ -5,6 +5,7 @@ class MemoryPalaceBase(BaseModel):
     name: str
     description: Optional[str] = None
     spots: Optional[List[Any]] = None
+    user_id: Optional[str] = None
 
 class MemoryPalaceCreate(MemoryPalaceBase):
     pass
