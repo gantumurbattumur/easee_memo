@@ -1,52 +1,104 @@
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.orm import Session
+from database import get_db
+from models.memory_palace import MemoryPalace
+from schemas.palace_schema import MemoryPalace as PalaceSchema
 import json
-import os
-from fastapi import APIRouter, Request
 
 router = APIRouter(prefix="/palace", tags=["Palace"])
 
-PALACES_FILE = os.path.join(os.path.dirname(__file__), "palaces.json")
-print("Reading from:", PALACES_FILE)
+# Get all palaces
+@router.get("/list", response_model=list[PalaceSchema])
+def list_palaces(db: Session = Depends(get_db)):
+    palaces = db.query(MemoryPalace).all()
+    result = []
+    for p in palaces:
+        # Convert stringified spots to Python list (if needed)
+        if isinstance(p.spots, str):
+            try:
+                p.spots = json.loads(p.spots)
+            except json.JSONDecodeError:
+                p.spots = []
+        result.append(p)
+    return result
 
-# Ensure the file exists
-if not os.path.exists(PALACES_FILE):
-    with open(PALACES_FILE, "w") as f:
-        json.dump([], f)
 
-def load_palaces():
-    with open(PALACES_FILE, "r") as f:
-        return json.load(f)
-
-def save_palaces(palaces):
-    with open(PALACES_FILE, "w") as f:
-        json.dump(palaces, f, indent=2)
-
-@router.get("/list")
-def list_palaces():
-    if not os.path.exists(PALACES_FILE):
-        return []
-    with open(PALACES_FILE, "r") as f:
-        try:
-            data = json.load(f)
-            return data
-        except json.JSONDecodeError:
-            return []
-
-@router.post("/upload")
-async def upload_memory_palace(request: Request):
+# Upload a new palace
+@router.post("/upload", response_model=PalaceSchema)
+async def upload_memory_palace(request: Request, db: Session = Depends(get_db)):
     data = await request.json()
-    print(f"📥 Received data: {data}")
+    print("📥 Received data:", data)
 
     nickname = data.get("nickname")
-    places = data.get("places", [])
+    spots = data.get("spots") or data.get("places", [])
 
     if not nickname:
-        return {"error": "Missing nickname"}
+        raise HTTPException(status_code=400, detail="Missing nickname")
 
-    palace = {"nickname": nickname, "places": places}
+    # Convert Python list to JSON string if necessary
+    if isinstance(spots, list):
+        spots_json = json.dumps(spots)
+    else:
+        spots_json = spots
 
-    palaces = load_palaces()
-    palaces.append(palace)
-    save_palaces(palaces)
+    new_palace = MemoryPalace(
+        name=nickname,
+        description=f"Palace created by {nickname}",
+        spots=spots_json
+    )
 
-    print(f"💾 Palace saved: {palace}")
-    return {"message": "Palace uploaded!", "palace": palace}
+    db.add(new_palace)
+    db.commit()
+    db.refresh(new_palace)
+    print("💾 Palace saved:", new_palace.name)
+
+    # Return parsed spots
+    try:
+        new_palace.spots = json.loads(new_palace.spots)
+    except Exception:
+        pass
+
+    return new_palace
+
+# Update existing palace
+@router.put("/update/{palace_id}", response_model=PalaceSchema)
+async def update_memory_palace(palace_id: int, request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
+    print(f"✏️ Updating palace {palace_id} with data:", data)
+
+    palace = db.query(MemoryPalace).filter(MemoryPalace.id == palace_id).first()
+    if not palace:
+        raise HTTPException(status_code=404, detail="Palace not found")
+
+    nickname = data.get("nickname", palace.name)
+    spots = data.get("spots", None)
+
+    palace.name = nickname
+    if spots is not None:
+        if isinstance(spots, list):
+            palace.spots = json.dumps(spots)
+        else:
+            palace.spots = spots
+
+    db.commit()
+    db.refresh(palace)
+
+    # Return parsed version
+    try:
+        palace.spots = json.loads(palace.spots)
+    except Exception:
+        pass
+
+    return palace
+
+
+# Delete a palace
+@router.delete("/delete/{palace_id}")
+def delete_memory_palace(palace_id: int, db: Session = Depends(get_db)):
+    palace = db.query(MemoryPalace).filter(MemoryPalace.id == palace_id).first()
+    if not palace:
+        raise HTTPException(status_code=404, detail="Palace not found")
+
+    db.delete(palace)
+    db.commit()
+    return {"detail": f"Palace '{palace.name}' deleted successfully"}

@@ -31,15 +31,16 @@ html, body, #root {
 
 /* Full-page, web-focused layout */
 body {
-  display: flex;
-  flex-direction: column;
-  place-items: center;
   width: 100%;
-  min-height: 100vh;
-  padding: 2rem 4rem;
+  height: 100%;
+  margin: 0;
   box-sizing: border-box;
+  display: block;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
   transition: background-color 0.5s ease;
 }
+
 
 /* Desktop container for content */
 .container {
@@ -171,7 +172,7 @@ svg {
 /* Web-responsive adjustments for larger screens */
 @media (min-width: 1024px) {
   body {
-    padding: 3rem 6rem;
+    padding: 0;
   }
   h1 {
     font-size: 3.5rem;

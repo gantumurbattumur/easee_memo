@@ -1,22 +1,39 @@
-// frontend/src/MemoryPalace.jsx
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 export default function MemoryPalace() {
   const [nickname, setNickname] = useState("");
   const [places, setPlaces] = useState([""]);
-  const [saved, setSaved] = useState(null);
+  const [loadedPalaces, setLoadedPalaces] = useState([]);
+  const [selectedPalace, setSelectedPalace] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const inputRefs = useRef([]);
 
-  const addPlace = () => setPlaces([...places, ""]);
+  const addPlace = (focus = true) => {
+    setPlaces(prev => [...prev, ""]);
+    setTimeout(() => {
+      if (focus && inputRefs.current[places.length]) {
+        inputRefs.current[places.length].focus();
+      }
+    }, 0);
+  };
+
   const updatePlace = (i, value) => {
     const newPlaces = [...places];
     newPlaces[i] = value;
     setPlaces(newPlaces);
   };
 
-  const savePalace = async () => {
-    const palace = { nickname, places: places.filter(p => p.trim() !== "") };
+  const handleKeyDown = (e, i) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (places[i].trim() !== "") addPlace();
+      else if (inputRefs.current[i + 1]) inputRefs.current[i + 1].focus();
+    }
+  };
 
-    if (!palace.nickname || palace.places.length === 0) {
+  const savePalace = async () => {
+    const palace = { nickname, spots: places.filter(p => p.trim() !== "") };
+    if (!palace.nickname || palace.spots.length === 0) {
       alert("Please enter a nickname and at least one place.");
       return;
     }
@@ -27,65 +44,166 @@ export default function MemoryPalace() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(palace),
       });
+      if (!res.ok) throw new Error("Failed to save");
+      setNickname("");
+      setPlaces([""]);
+      setIsEditing(false);
+      await loadPalaces();
 
-      const data = await res.json();
-      if (data.error) {
-        alert("❌ Error saving palace: " + data.error);
-      } else {
-        setSaved(palace);
-        setNickname("");
-        setPlaces([""]);
-      }
     } catch (err) {
       console.error(err);
-      alert("Failed to save palace to server!");
+      alert("Error saving palace");
+    }
+  };
+
+  const loadPalaces = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/palace/list");
+      const data = await res.json();
+      setLoadedPalaces(data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load palaces!");
+    }
+  };
+
+  const editPalace = (palace) => {
+    setNickname(palace.nickname);
+    setPlaces(palace.spots || []);
+    setSelectedPalace(palace);
+    setIsEditing(true);
+  };
+
+  const updatePalace = async () => {
+    if (!selectedPalace?.id) {
+      alert("No palace selected to update");
+      return;
+    }
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/palace/update/${selectedPalace.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, spots: places }),
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      await loadPalaces();
+      setNickname("");
+      setPlaces([""]);
+      setSelectedPalace(null);
+      setIsEditing(false);
+    } catch (err) {
+      console.error(err);
+      alert("Error updating palace");
+    }
+  };
+
+  const deletePalace = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this palace?")) return;
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/palace/delete/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete");
+      await loadPalaces();
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting palace");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-800 text-white flex flex-col items-center p-8">
-      <h2 className="text-3xl font-semibold mb-6">🏰 Create Your Memory Palace</h2>
+    <div className="min-h-screen w-full flex flex-col justify-center items-center bg-gradient-to-br from-indigo-100 via-purple-50 to-blue-100 p-8">
+      <h1 className="text-5xl font-extrabold mb-10 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
+        Memory Palace Builder
+      </h1>
 
-      <input
-        type="text"
-        value={nickname}
-        onChange={(e) => setNickname(e.target.value)}
-        placeholder="Palace nickname (e.g., Home)"
-        className="w-full max-w-md p-3 mb-4 rounded border border-gray-600 text-black"
-      />
+      <div className="w-full max-w-2xl bg-white/80 backdrop-blur-md shadow-2xl rounded-3xl p-8 text-center border border-white/50">
+        <input
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          placeholder="Enter your palace name..."
+          className="w-full text-lg p-4 mb-4 rounded-xl border border-gray-300 focus:ring-4 focus:ring-purple-200 focus:outline-none text-gray-800"
+        />
 
-      <h3 className="text-xl font-medium mb-2">Places:</h3>
-      <div className="w-full max-w-md space-y-2">
-        {places.map((place, i) => (
+        {places.map((p, i) => (
           <input
             key={i}
-            value={place}
+            ref={(el) => (inputRefs.current[i] = el)}
+            value={p}
             onChange={(e) => updatePlace(i, e.target.value)}
-            placeholder={`Place ${i + 1}`}
-            className="w-full p-3 rounded border border-gray-600 text-black transition-all focus:ring-2 focus:ring-blue-500"
+            onKeyDown={(e) => handleKeyDown(e, i)}
+            placeholder={`Spot ${i + 1}`}
+            className="w-full text-lg p-4 mb-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-purple-200 focus:outline-none text-gray-800"
           />
         ))}
+
+        <div className="flex justify-center gap-4 mt-6 flex-wrap">
+          <button
+            onClick={() => addPlace()}
+            className="px-5 py-3 rounded-full bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 text-white text-lg font-semibold shadow-md hover:scale-105 transition-transform"
+          >
+            + Add Spot
+          </button>
+
+          {!isEditing ? (
+            <button
+              onClick={savePalace}
+              className="px-5 py-3 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-lg font-semibold shadow-md hover:scale-105 transition-transform"
+            >
+              Save Palace
+            </button>
+          ) : (
+            <button
+              onClick={updatePalace}
+              className="px-5 py-3 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-lg font-semibold shadow-md hover:scale-105 transition-transform"
+            >
+              Update Palace
+            </button>
+          )}
+
+          <button
+            onClick={loadPalaces}
+            className="px-5 py-3 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 text-white text-lg font-semibold shadow-md hover:scale-105 transition-transform"
+          >
+            View Palaces
+          </button>
+        </div>
       </div>
 
-      <div className="mt-4 flex gap-3">
-        <button
-          onClick={addPlace}
-          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition"
-        >
-          + Add Place
-        </button>
-        <button
-          onClick={savePalace}
-          className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded transition"
-        >
-          Save Palace
-        </button>
-      </div>
-
-      {saved && (
-        <p className="mt-4 text-green-400">
-          ✅ Saved "{saved.nickname}" with {saved.places.length} places.
-        </p>
+      {/* Loaded Palaces */}
+      {loadedPalaces.length > 0 && (
+        <div className="w-full max-w-2xl mt-10 bg-white/90 p-6 rounded-3xl shadow-lg">
+          <h3 className="text-2xl font-semibold mb-6 text-slate-700">📚 Your Saved Palaces</h3>
+          {loadedPalaces.map((p) => (
+            <div
+              key={p.id}
+              className="mb-4 border border-gray-200 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-all"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="font-bold text-lg text-gray-800">{p.name || p.nickname}</h4>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => editPalace(p)}
+                    className="px-3 py-1 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-sm font-medium hover:scale-105 transition-transform"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => deletePalace(p.id)}
+                    className="px-3 py-1 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white text-sm font-medium hover:scale-105 transition-transform"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              <ul className="list-disc ml-5 text-gray-700 text-left">
+                {p.spots?.map((s, j) => (
+                  <li key={j}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

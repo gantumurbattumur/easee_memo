@@ -25,22 +25,32 @@ export default function StoryGenerator({ onGenerate }) {
 
     setLoading(true);
     try {
+      // find the full palace object
+      const palace = palaces.find(p => p.name === selectedPalace);
+      if (!palace || !palace.spots || palace.spots.length === 0) {
+        alert("Selected palace has no spots!");
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch("http://localhost:8000/story/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          palace_nickname: selectedPalace,
           topic,
+          palace_spots: palace.spots // <-- send the actual spots array
         }),
       });
+
       const data = await res.json();
-      onGenerate(data.story);
+      onGenerate(data.story); // story keyed to spots
     } catch (error) {
       console.error("Error generating story:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="relative backdrop-blur-xl bg-white/70 rounded-3xl shadow-2xl p-8 space-y-6 w-full border border-white/20 transition-all duration-500 hover:shadow-purple-500/20 hover:shadow-3xl">
@@ -73,8 +83,8 @@ export default function StoryGenerator({ onGenerate }) {
             >
               <option value="">Choose your palace...</option>
               {palaces.map((palace, i) => (
-                <option key={i} value={palace.nickname}>
-                  {palace.nickname}
+                <option key={i} value={palace.name}>
+                  {palace.name}
                 </option>
               ))}
             </select>
@@ -133,12 +143,12 @@ export default function StoryGenerator({ onGenerate }) {
           )}
         </button>
 
-        <div className="flex items-center justify-center gap-2 text-sm text-slate-500 pt-2">
+        {/* <div className="flex items-center justify-center gap-2 text-sm text-slate-500 pt-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           <span>AI-powered memory enhancement</span>
-        </div>
+        </div> */}
       </div>
     </div>
   );
