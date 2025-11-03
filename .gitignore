@@ -3,7 +3,7 @@ backend/memorypalace.db
 backend/__pycache__
 .DS_Store
 node_modules/
-.env
+backend/.env
 .vscode/
 __pycache__/
 *.pyc
