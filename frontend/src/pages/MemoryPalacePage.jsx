@@ -48,7 +48,7 @@ export default function MemoryPalace() {
 
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/palace/upload?user_id=${user_id}`,
+        `https://easee-memo.onrender.com/palace/upload?user_id=${user_id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -70,7 +70,7 @@ export default function MemoryPalace() {
   const loadPalaces = async () => {
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/palace/list?user_id=${user_id}`
+        `https://easee-memo.onrender.com/palace/list?user_id=${user_id}`
       );
       const data = await res.json();
       setLoadedPalaces(data);
@@ -104,7 +104,7 @@ export default function MemoryPalace() {
     }
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/palace/update/${selectedPalace.id}?user_id=${user_id}`,
+        `https://easee-memo.onrender.com/palace/update/${selectedPalace.id}?user_id=${user_id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -131,7 +131,7 @@ export default function MemoryPalace() {
     if (!window.confirm("Are you sure you want to delete this palace?")) return;
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/palace/delete/${id}?user_id=${user_id}`,
+        `https://easee-memo.onrender.com/palace/delete/${id}?user_id=${user_id}`,
         {
           method: "DELETE",
         }

@@ -10,7 +10,7 @@ export default function StoryGenerator({ onGenerate }) {
     const fetchPalaces = async () => {
       try {
         const userId = localStorage.getItem("user_id") || "guest";
-        const res = await fetch(`http://localhost:8000/palace/list?user_id=${userId}`);
+        const res = await fetch(`https://easee-memo.onrender.com/palace/list?user_id=${userId}`);
         if (!res.ok) throw new Error("Failed to fetch palaces");
         const data = await res.json();
         setPalaces(data || []);
@@ -35,7 +35,7 @@ export default function StoryGenerator({ onGenerate }) {
         return;
       }
 
-      const res = await fetch("http://localhost:8000/story/generate", {
+      const res = await fetch("https://easee-memo.onrender.com/story/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
