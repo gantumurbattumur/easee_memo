@@ -7,10 +7,10 @@ export default function StoryPage() {
   return (
     <div className="h-screen w-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex flex-col justify-center items-center overflow-y-auto">
       {/* Page Container */}
-      <div className="w-full max-w-5xl mx-auto flex flex-col space-y-10">
-        <h1 className="text-5xl font-extrabold text-center bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">
+      <div className>
+        {/* <h1 className="text-5xl font-extrabold text-center bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">
           Story Generator
-        </h1>
+        </h1> */}
 
         {/* Generator Card */}
         <StoryGenerator onGenerate={setStory} />

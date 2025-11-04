@@ -3,6 +3,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import MemoryPalacePage from "./pages/MemoryPalacePage";
 import StoryPage from "./pages/StoryPage";
 import Home from "./pages/Home";
+import Recall from "./pages/Recall";
 
 export default function App() {
   return (
@@ -27,6 +28,12 @@ export default function App() {
         >
           Generate Story
         </Link>
+        <Link
+          to="/story/recall"
+          className="text-slate-700 font-semibold hover:text-purple-600 transition-colors"
+        >
+          Recall
+        </Link>
       </nav>
 
       {/* Page content area */}
@@ -36,7 +43,7 @@ export default function App() {
           <Route path="/palace/upload" element={<MemoryPalacePage />} />
           <Route path="/palace/list" element={<MemoryPalacePage />} />
           <Route path="/story/generate" element={<StoryPage />} />
-
+          <Route path="/story/recall" element={<Recall />} />
         </Routes>
       </main>
     </div>

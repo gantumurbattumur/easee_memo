@@ -8,7 +8,7 @@ from typing import Optional
 
 router = APIRouter(prefix="/palace", tags=["Palace"])
 
-# 🟢 List palaces for a specific user
+# List palaces for a specific user
 @router.get("/list", response_model=list[PalaceSchema])
 def list_palaces(user_id: Optional[str] = Query(None), db: Session = Depends(get_db)):
     """Fetch all palaces (optionally filtered by user)."""
@@ -27,7 +27,7 @@ def list_palaces(user_id: Optional[str] = Query(None), db: Session = Depends(get
         result.append(p)
     return result
 
-# 🟢 Upload new palace
+# Upload new palace
 @router.post("/upload", response_model=PalaceSchema)
 async def upload_memory_palace(
     request: Request,
@@ -50,7 +50,7 @@ async def upload_memory_palace(
         name=nickname,
         description=f"Palace created by {nickname}",
         spots=spots_json,
-        user_id=user_id,  # ✅ link to this user's anonymous ID
+        user_id=user_id,  # link to this user's anonymous ID
     )
 
     db.add(new_palace)
@@ -65,7 +65,7 @@ async def upload_memory_palace(
     return new_palace
 
 
-# ✏️ Update existing palace
+# Update existing palace
 @router.put("/update/{palace_id}", response_model=PalaceSchema)
 async def update_memory_palace(
     palace_id: int,
@@ -100,7 +100,7 @@ async def update_memory_palace(
     return palace
 
 
-# ❌ Delete a palace
+# Delete a palace
 @router.delete("/delete/{palace_id}")
 def delete_memory_palace(
     palace_id: int, user_id: str = Query(...), db: Session = Depends(get_db)
