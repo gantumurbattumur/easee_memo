@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 
-export default function StoryGenerator() {
+export default function StoryGenerator({ refreshTrigger }) {
   const [palaces, setPalaces] = useState([]);
   const [selectedPalace, setSelectedPalace] = useState("");
   const [topic, setTopic] = useState("");
   const [loading, setLoading] = useState(false);
-  const [story, setStory] = useState(""); // ✅ store story locally
+  const [story, setStory] = useState("");
 
-  // Load user's saved palaces
+  // 🔁 Load user's saved palaces (runs initially + whenever Step 2 saves a new one)
   useEffect(() => {
     const fetchPalaces = async () => {
       try {
@@ -18,20 +18,26 @@ export default function StoryGenerator() {
         if (!res.ok) throw new Error("Failed to fetch palaces");
         const data = await res.json();
         setPalaces(data || []);
+
+        // if the selected palace was deleted, clear it
+        if (selectedPalace && !data.find((p) => p.name === selectedPalace)) {
+          setSelectedPalace("");
+        }
       } catch (error) {
         console.error("Failed to fetch palaces:", error);
       }
     };
-    fetchPalaces();
-  }, []);
 
-  // Generate story from API
+    fetchPalaces();
+  }, [refreshTrigger]); // 👈 re-run when Step 2 updates
+
+  // 🧠 Generate story from API
   const handleGenerate = async () => {
     if (!topic || !selectedPalace)
       return alert("Select a palace and enter a topic.");
 
     setLoading(true);
-    setStory(""); // reset previous story
+    setStory("");
     try {
       const palace = palaces.find((p) => p.name === selectedPalace);
       if (!palace || !palace.spots || palace.spots.length === 0) {
@@ -50,7 +56,7 @@ export default function StoryGenerator() {
       });
 
       const data = await res.json();
-      setStory(data.story); // show inside same component
+      setStory(data.story || "No story generated.");
     } catch (error) {
       console.error("Error generating story:", error);
       alert("Failed to generate story. Please try again.");
@@ -59,8 +65,9 @@ export default function StoryGenerator() {
     }
   };
 
+  // --- UI ---
   return (
-    <div className="w-full flex flex-col justify-center items-center text-center">
+    <div className="w-full flex flex-col justify-center items-center text-center text-slate-800">
       <h2 className="text-3xl font-semibold mb-4 text-blue-600">
         Generate a Story
       </h2>

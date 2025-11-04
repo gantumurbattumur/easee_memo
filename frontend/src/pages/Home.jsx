@@ -1,13 +1,15 @@
-// frontend/src/pages/Home.jsx
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { FaHome, FaBrain, FaRocket, FaRedoAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import PalaceBuilder from "./MemoryPalacePage";
-import StoryGenerator from "../components/StoryGenerator"; // <— replace with your actual path
+import StoryGenerator from "../components/StoryGenerator";
 
 export default function Home() {
   const navigate = useNavigate();
   const sectionRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+
+  // 👇 This controls when Step 3 should reload palace list
+  const [refreshPalaces, setRefreshPalaces] = useState(false);
 
   const scrollToSection = (index) => {
     if (sectionRefs[index].current) {
@@ -15,9 +17,12 @@ export default function Home() {
     }
   };
 
+  // called by Step 2 after saving palace
+  const handlePalaceSaved = () => setRefreshPalaces((prev) => !prev);
+
   return (
     <div className="scroll-smooth font-sans text-slate-800">
-      {/* Header / Intro Section */}
+      {/* STEP 1 ------------------------------------------------ */}
       <section
         ref={sectionRefs[0]}
         className="min-h-screen flex flex-col justify-center items-center text-center px-8 bg-gradient-to-b from-white to-blue-50"
@@ -46,7 +51,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Step 2: Build Memory Palace */}
+      {/* STEP 2 ------------------------------------------------ */}
       <section
         ref={sectionRefs[1]}
         className="min-h-screen flex flex-col justify-center items-center px-8 bg-gradient-to-b from-blue-50 to-purple-50"
@@ -61,7 +66,8 @@ export default function Home() {
 
         {/* Palace Builder Component */}
         <div className="w-full max-w-3xl bg-white/80 shadow-lg rounded-3xl p-8 border border-slate-200">
-          <PalaceBuilder />
+          {/* Pass callback so Step 3 knows when new palace is saved */}
+          <PalaceBuilder onPalaceSaved={handlePalaceSaved} />
         </div>
 
         <button
@@ -72,7 +78,7 @@ export default function Home() {
         </button>
       </section>
 
-      {/* Step 3: Story Generator */}
+      {/* STEP 3 ------------------------------------------------ */}
       <section
         ref={sectionRefs[2]}
         className="min-h-screen flex flex-col justify-center items-center px-8 bg-gradient-to-b from-purple-50 to-pink-50"
@@ -88,7 +94,8 @@ export default function Home() {
 
         {/* Story Generator Component */}
         <div className="w-full max-w-3xl bg-white/80 shadow-lg rounded-3xl p-8 border border-slate-200">
-          <StoryGenerator />
+          {/* Re-fetch palaces whenever Step 2 saves new one */}
+          <StoryGenerator refreshTrigger={refreshPalaces} />
         </div>
 
         <button
@@ -99,7 +106,7 @@ export default function Home() {
         </button>
       </section>
 
-      {/* Step 4: Recall Section */}
+      {/* STEP 4 ------------------------------------------------ */}
       <section
         ref={sectionRefs[3]}
         className="min-h-screen flex flex-col justify-center items-center text-center px-8 bg-gradient-to-b from-pink-50 to-white"
@@ -112,7 +119,7 @@ export default function Home() {
             and strengthen your imagination into super-memory.
           </p>
           <button
-            onClick={() => navigate("/recall")}
+            onClick={() => navigate("/story/recall")}
             className="bg-green-500 hover:bg-green-600 text-white px-10 py-3 rounded-lg font-semibold transition-transform transform hover:scale-105"
           >
             Recall Now

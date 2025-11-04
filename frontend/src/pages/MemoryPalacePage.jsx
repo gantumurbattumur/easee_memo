@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 
-export default function MemoryPalace() {
-  // ✅ Generate or reuse anonymous user_id
+export default function MemoryPalace({ onPalaceSaved }) {
+  // Generate or reuse anonymous user_id
   if (!localStorage.getItem("user_id")) {
     localStorage.setItem("user_id", crypto.randomUUID());
   }
@@ -14,6 +14,7 @@ export default function MemoryPalace() {
   const [isEditing, setIsEditing] = useState(false);
   const inputRefs = useRef([]);
 
+  // --- Add a new spot field ---
   const addPlace = (focus = true) => {
     setPlaces((prev) => [...prev, ""]);
     setTimeout(() => {
@@ -55,24 +56,30 @@ export default function MemoryPalace() {
         }
       );
       if (!res.ok) throw new Error("Failed to save");
+
+      // Reset local state
       setNickname("");
       setPlaces([""]);
       setIsEditing(false);
       await loadPalaces();
+
+      // Notify parent (Home.jsx) so Step 3 refreshes instantly
+      if (onPalaceSaved) onPalaceSaved();
+
     } catch (err) {
       console.error(err);
       alert("Error saving palace");
     }
   };
 
-  // --- LOAD ---
+  // --- LOAD FROM BACKEND ---
   const loadPalaces = async () => {
     try {
       const res = await fetch(
         `https://easee-memo.onrender.com/palace/list?user_id=${user_id}`
       );
       const data = await res.json();
-      setLoadedPalaces(data);
+      setLoadedPalaces(data || []);
     } catch (err) {
       console.error(err);
       alert("Failed to load palaces!");
@@ -100,6 +107,7 @@ export default function MemoryPalace() {
       alert("No palace selected to update");
       return;
     }
+
     try {
       const res = await fetch(
         `https://easee-memo.onrender.com/palace/update/${selectedPalace.id}?user_id=${user_id}`,
@@ -112,12 +120,18 @@ export default function MemoryPalace() {
           }),
         }
       );
+
       if (!res.ok) throw new Error("Failed to update");
       await loadPalaces();
+
       setNickname("");
       setPlaces([""]);
       setSelectedPalace(null);
       setIsEditing(false);
+
+      // Notify Home.jsx for refresh after editing too
+      if (onPalaceSaved) onPalaceSaved();
+
     } catch (err) {
       console.error(err);
       alert("Error updating palace");
@@ -126,6 +140,7 @@ export default function MemoryPalace() {
 
   const deletePalace = async (id) => {
     if (!window.confirm("Are you sure you want to delete this palace?")) return;
+
     try {
       const res = await fetch(
         `https://easee-memo.onrender.com/palace/delete/${id}?user_id=${user_id}`,
@@ -133,6 +148,8 @@ export default function MemoryPalace() {
       );
       if (!res.ok) throw new Error("Failed to delete");
       await loadPalaces();
+
+      if (onPalaceSaved) onPalaceSaved();
     } catch (err) {
       console.error(err);
       alert("Error deleting palace");
@@ -141,7 +158,6 @@ export default function MemoryPalace() {
 
   // --- UI ---
   return (
-    
     <div className="w-full flex flex-col justify-center items-center text-center text-slate-800">
       <h2 className="text-3xl font-semibold mb-4 text-blue-600">
         Build Your Memory Palace
@@ -152,6 +168,7 @@ export default function MemoryPalace() {
         spots. Add a few locations below to begin building yours.
       </p>
 
+      {/* Input Card */}
       <div className="w-full max-w-2xl bg-white shadow-xl rounded-2xl p-8 border border-slate-200">
         <input
           value={nickname}
@@ -205,6 +222,7 @@ export default function MemoryPalace() {
         </div>
       </div>
 
+      {/* Saved Palaces */}
       {loadedPalaces.length > 0 && (
         <div className="w-full max-w-2xl mt-10 bg-white p-6 rounded-2xl shadow-md border border-slate-200">
           <h3 className="text-xl font-semibold mb-4 text-slate-700">
