@@ -7,4 +7,3 @@ requests
 google-generativeai
 google-genai
 psycopg2-binary
-sentence-transformers
