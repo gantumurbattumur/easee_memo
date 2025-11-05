@@ -10,11 +10,12 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # CRITICAL: Reduce pool size for Supabase free tier
 engine = create_engine(
     DATABASE_URL,
-    pool_size=2,              # Reduced from 5 to 2
-    max_overflow=0,           # Reduced from 10 to 0
+    pool_size=1,              # Reduced from 5 to 2
+    max_overflow=1,           # Reduced from 10 to 0
     pool_pre_ping=True,       # Keep this
-    pool_recycle=300,         # Add: recycle connections every 5 minutes
-    pool_timeout=30,          # Add: timeout for getting connections
+    pool_recycle=60,         # Add: recycle connections every 5 minutes
+    pool_timeout=10,          # Add: timeout for getting connections
+    echo=False,                # Keep this
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
