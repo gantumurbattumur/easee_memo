@@ -31,7 +31,8 @@ Topic 2: **[keyword/concept]**
 """
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=prompt
+        model="gemini-2.5-pro", contents=prompt
+        
     )
     return response.text
 
@@ -65,7 +66,7 @@ def check_recall(reference_story: str, user_answer: str) -> str:
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-flash", contents=prompt
+            model="gemini-2.5-pro", contents=prompt
         )
         # Safely handle cases where the response or its text may be None
         if response is None:

@@ -4,6 +4,7 @@ from routes.story import router as story_router
 from routes.palace import router as palace_router
 from database import Base, engine
 from models.memory_palace import MemoryPalace
+from datetime import datetime
 
 # Create all database tables
 # Base.metadata.create_all(bind=engine)
@@ -29,3 +30,7 @@ app.include_router(palace_router)
 @app.get("/")
 def root():
     return {"message": "Easee Memo Backend is running!"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
