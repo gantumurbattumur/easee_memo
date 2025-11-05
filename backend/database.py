@@ -3,19 +3,24 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+# CRITICAL: Reduce pool size for Supabase free tier
 engine = create_engine(
     DATABASE_URL,
-    pool_size=5,          
-    max_overflow=10,      
-    pool_pre_ping=True,   
+    pool_size=2,              # Reduced from 5 to 2
+    max_overflow=0,           # Reduced from 10 to 0
+    pool_pre_ping=True,       # Keep this
+    pool_recycle=300,         # Add: recycle connections every 5 minutes
+    pool_timeout=30,          # Add: timeout for getting connections
 )
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Dependency for FastAPI
+# Dependency for FastAPI - Keep this here!
 def get_db():
     db = SessionLocal()
     try:
