@@ -4,8 +4,9 @@ from routes.story import router as story_router
 from routes.palace import router as palace_router
 from database import Base, engine
 from models.memory_palace import MemoryPalace
+
 # Create all database tables
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Easee Memo API")
 
