@@ -68,13 +68,13 @@ export default function StoryGenerator({ refreshTrigger }) {
   // --- UI ---
   return (
     <div className="w-full flex flex-col justify-center items-center text-center text-slate-800">
-      <h2 className="text-3xl font-semibold mb-4 text-blue-600">
+      {/* <h2 className="text-3xl font-semibold mb-4 text-blue-600">
         Generate a Story
       </h2>
       <p className="max-w-2xl text-slate-600 mb-8 text-base leading-relaxed">
         Enter a topic you want to memorize. The AI will turn it into a vivid,
         walkable story through your chosen memory palace.
-      </p>
+      </p> */}
 
       {/* Card */}
       <div className="w-full max-w-2xl bg-white shadow-xl rounded-2xl p-8 border border-slate-200">

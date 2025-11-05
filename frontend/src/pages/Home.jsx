@@ -65,10 +65,7 @@ export default function Home() {
         </div>
 
         {/* Palace Builder Component */}
-        <div className="w-full max-w-3xl bg-white/80 shadow-lg rounded-3xl p-8 border border-slate-200">
-          {/* Pass callback so Step 3 knows when new palace is saved */}
-          <PalaceBuilder onPalaceSaved={handlePalaceSaved} />
-        </div>
+        <PalaceBuilder onPalaceSaved={handlePalaceSaved} />
 
         <button
           onClick={() => scrollToSection(2)}
@@ -93,11 +90,8 @@ export default function Home() {
         </div>
 
         {/* Story Generator Component */}
-        <div className="w-full max-w-3xl bg-white/80 shadow-lg rounded-3xl p-8 border border-slate-200">
-          {/* Re-fetch palaces whenever Step 2 saves new one */}
-          <StoryGenerator refreshTrigger={refreshPalaces} />
-        </div>
-
+        <StoryGenerator refreshTrigger={refreshPalaces} />
+        
         <button
           onClick={() => scrollToSection(3)}
           className="mt-10 bg-blue-500 hover:bg-blue-600 text-white px-10 py-3 rounded-lg font-semibold transition-transform transform hover:scale-105"

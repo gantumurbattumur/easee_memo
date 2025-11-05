@@ -159,14 +159,14 @@ export default function MemoryPalace({ onPalaceSaved }) {
   // --- UI ---
   return (
     <div className="w-full flex flex-col justify-center items-center text-center text-slate-800">
-      <h2 className="text-3xl font-semibold mb-4 text-blue-600">
+      {/* <h2 className="text-3xl font-semibold mb-4 text-blue-600">
         Build Your Memory Palace
       </h2>
       <p className="max-w-2xl text-slate-600 mb-8 text-base leading-relaxed">
         A <span className="font-semibold text-blue-500">Memory Palace</span> is
         a familiar place you can visualize to store information in different
         spots. Add a few locations below to begin building yours.
-      </p>
+      </p> */}
 
       {/* Input Card */}
       <div className="w-full max-w-2xl bg-white shadow-xl rounded-2xl p-8 border border-slate-200">
