@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FaHome, FaBrain, FaRocket, FaRedoAlt } from "react-icons/fa";
 
 export default function StoryGenerator({ refreshTrigger }) {
   const [palaces, setPalaces] = useState([]);
@@ -78,6 +79,12 @@ export default function StoryGenerator({ refreshTrigger }) {
 
       {/* Card */}
       <div className="w-full max-w-2xl bg-white shadow-xl rounded-2xl p-8 border border-slate-200">
+        <FaRocket size={50} className="mx-auto mb-6 text-pink-500" />
+        <h2 className="text-4xl font-semibold mb-4">Step 3: Generate a Story</h2>
+        <p className="max-w-2xl text-slate-600">
+          Enter a topic or list — vocabulary, facts, or concepts — and let the AI turn them
+          into a vivid, walkable story through your palace.
+        </p>
         {/* Palace Selector */}
         <div className="mb-6 text-left">
           <label className="block text-sm font-semibold text-slate-700 mb-2">

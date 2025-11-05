@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { FaHome, FaBrain, FaRocket, FaRedoAlt } from "react-icons/fa";
 
 export default function MemoryPalace({ onPalaceSaved }) {
   // Generate or reuse anonymous user_id
@@ -170,6 +171,11 @@ export default function MemoryPalace({ onPalaceSaved }) {
 
       {/* Input Card */}
       <div className="w-full max-w-2xl bg-white shadow-xl rounded-2xl p-8 border border-slate-200">
+          <FaBrain size={50} className="mx-auto mb-6 text-purple-500" />
+          <h2 className="text-4xl font-semibold mb-4">Step 2: Build Your Memory Palace</h2>
+          <p className="max-w-2xl text-slate-600">
+            Add locations one by one — doorway, couch, desk, window — to create your personal palace.
+          </p>
         <input
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}

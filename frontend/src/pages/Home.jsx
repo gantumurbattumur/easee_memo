@@ -57,11 +57,11 @@ export default function Home() {
         className="min-h-screen flex flex-col justify-center items-center px-8 bg-gradient-to-b from-blue-50 to-purple-50"
       >
         <div className="text-center mb-10">
-          <FaBrain size={50} className="mx-auto mb-6 text-purple-500" />
+          {/* <FaBrain size={50} className="mx-auto mb-6 text-purple-500" />
           <h2 className="text-4xl font-semibold mb-4">Step 2: Build Your Memory Palace</h2>
           <p className="max-w-2xl text-slate-600">
             Add locations one by one — doorway, couch, desk, window — to create your personal palace.
-          </p>
+          </p> */}
         </div>
 
         {/* Palace Builder Component */}
@@ -81,17 +81,16 @@ export default function Home() {
         className="min-h-screen flex flex-col justify-center items-center px-8 bg-gradient-to-b from-purple-50 to-pink-50"
       >
         <div className="text-center mb-10">
-          <FaRocket size={50} className="mx-auto mb-6 text-pink-500" />
+          {/* <FaRocket size={50} className="mx-auto mb-6 text-pink-500" />
           <h2 className="text-4xl font-semibold mb-4">Step 3: Generate a Story</h2>
           <p className="max-w-2xl text-slate-600">
             Enter a topic or list — vocabulary, facts, or concepts — and let the AI turn them
             into a vivid, walkable story through your palace.
-          </p>
+          </p> */}
         </div>
 
         {/* Story Generator Component */}
         <StoryGenerator refreshTrigger={refreshPalaces} />
-        
         <button
           onClick={() => scrollToSection(3)}
           className="mt-10 bg-blue-500 hover:bg-blue-600 text-white px-10 py-3 rounded-lg font-semibold transition-transform transform hover:scale-105"

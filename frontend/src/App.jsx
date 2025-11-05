@@ -17,23 +17,23 @@ export default function App() {
           Home
         </Link>
         <Link
-          to="/palace/upload"
+          to="/palace/list"
           className="text-slate-700 font-semibold hover:text-purple-600 transition-colors"
         >
-          Memory Palace
+          Memory Palaces
         </Link>
-        <Link
+        {/* <Link
           to="/story/generate"
           className="text-slate-700 font-semibold hover:text-purple-600 transition-colors"
         >
           Generate Story
-        </Link>
-        <Link
+        </Link> */}
+        {/* <Link
           to="/story/recall"
           className="text-slate-700 font-semibold hover:text-purple-600 transition-colors"
         >
           Recall
-        </Link>
+        </Link> */}
       </nav>
 
       {/* Page content area */}
