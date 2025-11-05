@@ -32,5 +32,5 @@ async def story_generate(req: StoryRequest):
 @router.post("/recall")
 async def story_recall(req: RecallRequest):
     reference_story = generate_story(req.topic, req.palace_spots)
-    feedback = check_recall(reference_story, req.answer)
+    feedback = check_recall(reference_story, req.topic, req.answer)
     return {"feedback": feedback}

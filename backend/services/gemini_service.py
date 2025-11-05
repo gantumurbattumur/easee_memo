@@ -37,7 +37,7 @@ Topic 2: **[keyword/concept]**
     return response.text
 
 
-def check_recall(reference_story: str, user_answer: str) -> str:
+def check_recall(reference_story: str, user_topic: str, user_answer: str) -> str:
     """
     Use Gemini to evaluate how accurate the user's recall is 
     compared to the reference story. Returns short feedback text.
@@ -52,7 +52,7 @@ def check_recall(reference_story: str, user_answer: str) -> str:
     {reference_story}
 
     User's Recall:
-    {user_answer}
+    {user_topic + user_answer}
 
     Evaluate if the recall is:
     - ✅ Correct (covers all main ideas accurately)
@@ -66,7 +66,7 @@ def check_recall(reference_story: str, user_answer: str) -> str:
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-pro", contents=prompt
+            model="gemini-2.5-flash", contents=prompt
         )
         # Safely handle cases where the response or its text may be None
         if response is None:
